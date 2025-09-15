@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройка весов</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      .slider {
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Настройка весов</h1>
+    <div class="slider">
+      <label for="slider1">Вес схожести: <span id="value1">20</span>
+      </label>
+      <input type="range" id="slider1" min="0" max="100" value="20">
+      <input type="number" id="input1" min="0" max="100" value="20">
+    </div>
+    <div class="slider">
+      <label for="slider2">Вес рейтинга: <span id="value2">0</span>
+      </label>
+      <input type="range" id="slider2" min="0" max="100" value="0">
+      <input type="number" id="input2" min="0" max="100" value="0">
+    </div>
+    <div class="slider">
+      <label for="slider3">Вес популярности: <span id="value3">1</span>
+      </label>
+      <input type="range" id="slider3" min="0" max="100" value="1">
+      <input type="number" id="input3" min="0" max="100" value="1">
+    </div>
+    <div class="slider">
+      <label for="slider4">Вес наличия сертификата: <span id="value4">0</span>
+      </label>
+      <input type="range" id="slider4" min="0" max="100" value="0">
+      <input type="number" id="input4" min="0" max="100" value="0">
+    </div>
+    <div class="slider">
+      <label for="slider5">Вес Стоимости: <span id="value5">1</span>
+      </label>
+      <input type="range" id="slider5" min="-100" max="100" value="1">
+      <input type="number" id="input5" min="-100" max="100" value="1">
+    </div>
+    <script>
+      const sliders = document.querySelectorAll('input[type="range"]');
+      const values = [
+        document.getElementById('value1'),
+        document.getElementById('value2'),
+        document.getElementById('value3'),
+        document.getElementById('value4'),
+        document.getElementById('value5')
+      ];
+      const inputs = [
+        document.getElementById('input1'),
+        document.getElementById('input2'),
+        document.getElementById('input3'),
+        document.getElementById('input4'),
+        document.getElementById('input5')
+      ];
+      sliders.forEach((slider, index) => {
+        slider.addEventListener('input', () => {
+          values[index].textContent = slider.value;
+          inputs[index].value = slider.value; // Sync input field with slider
+          sendValueToBackend(slider.id, slider.value);
+        });
+      });
+      inputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+          values[index].textContent = input.value; // Sync displayed value with input
+          sliders[index].value = input.value; // Sync slider with input field
+          sendValueToBackend(sliders[index].id, input.value);
+        });
+      });
+
+      function sendValueToBackend(sliderId, value) {
+        fetch('/api/update-weights', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sliderId: sliderId,
+            value: value
+          }),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        }).then(data => {
+          console.log('Success:', data);
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: skills-app
+    container_name: stepik-backend
+    volumes:
+      - models:/models
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+
+  stepik:
+    build:
+      context: ./stepik
+    container_name: stepik-frontend
+    ports:
+      - ${STEPIK_PORT}:80
+    restart: unless-stopped
+    depends_on:
+      - backend
+    logging:
+      driver: none
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+volumes:
+  qdrant_data:
+  models:
+  postgres:
